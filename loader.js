@@ -22,4 +22,4 @@ function loader(fileName, trainingRatio) {
     return [trainingData, testData];
 }
 
-console.log(loader('car.data', 2/3));
+module.exports = loader;
