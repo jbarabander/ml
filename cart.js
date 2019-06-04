@@ -75,7 +75,7 @@ function cart(data, classIndex, minSplitSize, includedFeatures) {
     
     if (data.length === 0) return null;
 
-    if (data.length <= minSplitSize || giniImpurity(data, classIndex) === 0) {
+    if (data.length < minSplitSize || giniImpurity(data, classIndex) === 0) {
         return createPredictionNode(data, classIndex);
     }
 
