@@ -5,7 +5,7 @@ function loader(fileName, trainingRatio) {
     if (trainingRatio >= 1) throw new Error('training ratio is greater than or equal to 1');
     let dataPath = path.join(__dirname, './data', fileName);
     let data = fs.readFileSync(dataPath, {encoding: 'utf8'});
-    let rows = data.split('\n').map(row => row.split(','));
+    let rows = data.split('\n').filter(row => !!row).map(row => row.split(','));
     let trainingSetRows = {};
     let trainingData = [];
     let len = rows.length;
@@ -19,7 +19,7 @@ function loader(fileName, trainingRatio) {
         trainingData.push(rows[pick]);
     }
     let testData = rows.filter((row, index) => !trainingSetRows[index]);
-    return [trainingData, testData];
+    return {training: trainingData, test: testData};
 }
 
 module.exports = loader;

@@ -1,3 +1,5 @@
+const { modeFromValueCountHash } = require('./utils');
+
 class Predictor {
     constructor(trees) {
         this.trees = trees;

@@ -70,8 +70,8 @@ function createPredictionNode(data, classIndex) {
     return { prediction: mode(data, classIndex) };
 }
 
-function cart(data, classIndex, minSplitSize, includedFeatures) {
-    let featuresIncluded = includedFeatures ? includedFeatures : fillArr(data[0].length);
+function cart(data, classIndex, minSplitSize, includedFeaturesFunc) {
+    let featuresIncluded = includedFeaturesFunc ? includedFeaturesFunc() : fillArr(data[0].length);
     
     if (data.length === 0) return null;
 
@@ -89,7 +89,11 @@ function cart(data, classIndex, minSplitSize, includedFeatures) {
             minResults = results;
         }
     }
-    
+    if (minResults === undefined) {
+        console.log(data[0].length);
+        console.log(featuresIncluded);
+    }
+
     if (minResults.choicesLen === 1) {
         return createPredictionNode(data, classIndex);
     }
@@ -99,8 +103,8 @@ function cart(data, classIndex, minSplitSize, includedFeatures) {
         index: minIndex,
         numeric: minResults.numeric,
         split: minResults.split,
-        left: cart(minResults.data[0], classIndex, minSplitSize, includedFeatures),
-        right: cart(minResults.data[1], classIndex, minSplitSize, includedFeatures),
+        left: cart(minResults.data[0], classIndex, minSplitSize, includedFeaturesFunc),
+        right: cart(minResults.data[1], classIndex, minSplitSize, includedFeaturesFunc),
     }
 }
 
