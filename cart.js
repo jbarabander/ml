@@ -1,65 +1,6 @@
-
-function giniImpurity(data, classIndex) {
-    let classes = {};
-    for (let i = 0; i < data.length; i++) {
-        if (classes[data[i][classIndex]] === undefined) {
-            classes[data[i][classIndex]] = 0;
-        }
-        classes[data[i][classIndex]]++;
-    }
-    return (
-        Object
-        .keys(classes)
-        .map((key) => classes[key])
-        .reduce((prev, curr) => prev - Math.pow(curr / data.length, 2), 1)
-    );
-} 
-
-function modeFromValueCountHash (valuesHash) {
-    let values = Object.keys(valuesHash).map(key => valuesHash[key]);
-    return values.reduce((prev, curr) => {
-        if (prev.count < curr.count) {
-            prev.count = curr.count;
-            prev.value = curr.value;
-        }
-        return prev;
-    }, {value: null, count: 0}).value;
-}
-
-class Predictor {
-    constructor(trees) {
-        this.trees = trees;
-    }
-    classify(entry) {
-        let votes = {};
-        for (let i = 0; i < this.trees.length; i++) {
-            let currentTree = this.trees[i];
-            while(currentTree.prediction === undefined) {
-                if(currentTree.numeric) {
-                    currentTree = entry[currentTree.index] < currentTree.split ? currentTree.left : currentTree.right;
-                    continue;
-                }
-                currentTree = entry[currentTree.index] === currentTree.split ? currentTree.left : currentTree.right;
-            }
-            if (votes[currentTree.prediction] === undefined) {
-                votes[currentTree.prediction] = {value: currentTree.prediction, count: 0};
-            }
-            votes[currentTree.prediction].count++;
-        }
-        return modeFromValueCountHash(votes);
-    }
-}
-
-function mode (data, classIndex) {
-    let valuesHash = data.reduce((prev, curr) => {
-        if (prev[curr[classIndex]] === undefined) {
-            prev[curr[classIndex]] = {value: curr[classIndex], count: 0};
-        }
-        prev[curr[classIndex]].count++;
-        return prev;
-    }, {});
-    return modeFromValueCountHash(valuesHash);
-}
+const giniImpurity = require('./giniImpurity');
+const { mode, fillArr } = require('./utils');
+const Predictor = require('./Predictor');
 
 function getOptions(data, index) {
     let hash = {};
@@ -124,14 +65,6 @@ function split(data, index, classIndex) {
     return findCategoricalSplit(data, index, classIndex);
 }
 
-function fillArr (num) {
-    let arr = [];
-    for (let i = 0; i < num - 1; i++) {
-        arr.push(i);
-    }
-    return arr;
-}
-
 function cart(data, classIndex, minSplitSize, includedFeatures) {
     let featuresIncluded = includedFeatures ? includedFeatures : fillArr(data[0].length);
     if (data.length === 0) {
@@ -169,31 +102,5 @@ function cartWithPredictor (data, classIndex, minSplitSize, includedFeatures) {
     return new Predictor([tree]);
 }
 
-
-function randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures) {
-    let numFeatures = typeof numOfFeatures === 'number' ? numOfFeatures : Math.sqrt(data[0].length - 1);
-    let trees = [];
-    for (let i = 0; i < numOfTrees; i++) {
-        let featuresToInclude = [];
-        let dataToChoose = [];
-        for (let j = 0; j < numFeatures; j++) {
-            let toInclude;
-            do {
-                toInclude = Math.floor(Math.random() * data[0].length);
-            } while (toInclude === classIndex)
-            featuresToInclude.push(toInclude);
-        }
-        for (let k = 0; k < data.length; k++) {
-            let index = Math.floor(Math.random() * data.length);
-            dataToChoose.push(data[index]);
-        }
-        let tree = cart(dataToChoose, classIndex, minSplitSize, featuresToInclude);
-        trees.push(tree);
-    }
-    return trees;
-}
-
-function randomForestWithPredictor(data, classIndex, minSplitSize, numOfTrees, numOfFeatures) {
-    let trees = randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures);
-    return new Predictor(trees);
-}
+module.exports = cart;
+module.exports.withPredictor = cartWithPredictor;
