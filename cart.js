@@ -38,7 +38,8 @@ function findSplit(choices, data, index, classIndex, isNumeric) {
         split: optimizedSplitPoint,
         data: optimizedSplit,
         impurity: minGiniImpurity,
-        numeric: isNumeric
+        numeric: isNumeric,
+        choicesLen: choices.length
     }
 }
 
@@ -65,16 +66,17 @@ function split(data, index, classIndex) {
     return findCategoricalSplit(data, index, classIndex);
 }
 
+function createPredictionNode(data, classIndex) {
+    return { prediction: mode(data, classIndex) };
+}
+
 function cart(data, classIndex, minSplitSize, includedFeatures) {
     let featuresIncluded = includedFeatures ? includedFeatures : fillArr(data[0].length);
-    if (data.length === 0) {
-        return null;
-    }
+    
+    if (data.length === 0) return null;
 
     if (data.length <= minSplitSize || giniImpurity(data, classIndex) === 0) {
-        return {
-            prediction: mode(data, classIndex)
-        }   
+        return createPredictionNode(data, classIndex);
     }
 
     let minIndex;
@@ -87,6 +89,11 @@ function cart(data, classIndex, minSplitSize, includedFeatures) {
             minResults = results;
         }
     }
+    
+    if (minResults.choicesLen === 1) {
+        return createPredictionNode(data, classIndex);
+    }
+    
     return {
         impurity: minResults.impurity,
         index: minIndex,
