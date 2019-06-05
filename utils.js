@@ -22,14 +22,24 @@ function mode (data) {
 
 function fillArr (num) {
     let arr = [];
-    for (let i = 0; i < num - 1; i++) {
+    for (let i = 0; i < num; i++) {
         arr.push(i);
     }
     return arr;
 }
 
+function defaultFormatter (data) {
+    if (data.length === 0) {
+        return { features: [], classifier: null};
+    }
+    let features = data.slice(0, data.length - 1);
+    let classification = data[data.length - 1];
+    return { features, classification };
+}
+
 module.exports = {
     mode,
     modeFromValueCountHash,
-    fillArr
+    fillArr,
+    defaultFormatter
 };

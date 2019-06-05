@@ -21,8 +21,8 @@ function calculateResults(predictor) {
     return results.correct / results.total;
 }
 
-let forestPredictor = randomForest(training, CLASS_INDEX, minSplitSize, NUM_TREES);
-let cartPredictor = cart(training, CLASS_INDEX, minSplitSize);
+let forestPredictor = randomForest(training, minSplitSize, NUM_TREES);
+let cartPredictor = cart(training, minSplitSize);
 
 console.log('forest:', calculateResults(forestPredictor));
 console.log('cart:', calculateResults(cartPredictor));

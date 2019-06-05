@@ -1,15 +1,13 @@
 const cart = require('./cart');
 const withPredictor = require('./Predictor').withPredictor;
 
-function randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures) {
-    let numFeatures = typeof numOfFeatures === 'number' ? numOfFeatures : Math.sqrt(data[0].length);
+function randomForest(data, minSplitSize, numOfTrees, numOfFeatures) {
+    let featuresLen = data[0].features.length;
+    let numFeatures = typeof numOfFeatures === 'number' ? numOfFeatures : Math.sqrt(featuresLen);
     let randomFeaturesFunc = () => {
         let featuresToInclude = [];
         for (let j = 0; j < numFeatures; j++) {
-            let toInclude;
-            do {
-                toInclude = Math.floor(Math.random() * data[0].length);
-            } while (toInclude === classIndex)
+            let toInclude = Math.floor(Math.random() * featuresLen);
             featuresToInclude.push(toInclude);
         }
         return featuresToInclude;
@@ -21,15 +19,15 @@ function randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures)
             let index = Math.floor(Math.random() * data.length);
             dataToChoose.push(data[index]);
         }
-        let tree = cart(dataToChoose, classIndex, minSplitSize, randomFeaturesFunc);
+        let tree = cart(dataToChoose, minSplitSize, randomFeaturesFunc);
         trees.push(tree);
     }
     return trees;
 }
 
-function randomForestWithPredictor(data, classIndex, minSplitSize, numOfTrees, numOfFeatures, formatter = (entry => entry)) {
-    let treeCreator = (data) => randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures);
-    return withPredictor(treeCreator, formatter, data);
+function randomForestWithPredictor(data, minSplitSize, numOfTrees, numOfFeatures, formatter) {
+    let treeCreator = (newData) => randomForest(newData, minSplitSize, numOfTrees, numOfFeatures);
+    return withPredictor(treeCreator, data, formatter);
 }
 
 module.exports = randomForest;
