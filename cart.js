@@ -70,7 +70,7 @@ function createPredictionNode(data, classIndex) {
     return { prediction: mode(data, classIndex) };
 }
 
-function cart(data, classIndex, minSplitSize, includedFeaturesFunc, maxDepth = Infinity,  currentDepth = 0) {
+function cart(data, classIndex, minSplitSize, includedFeaturesFunc, maxDepth = Infinity, currentDepth = 0) {
     let featuresIncluded = includedFeaturesFunc ? includedFeaturesFunc() : fillArr(data[0].length);
     
     if (data.length === 0) return null;
@@ -104,8 +104,8 @@ function cart(data, classIndex, minSplitSize, includedFeaturesFunc, maxDepth = I
     }
 }
 
-function cartWithPredictor (data, classIndex, minSplitSize, includedFeatures) {
-    let tree = cart(data, classIndex, minSplitSize, includedFeatures);
+function cartWithPredictor (data, classIndex, minSplitSize, includedFeatures, maxDepth) {
+    let tree = cart(data, classIndex, minSplitSize, includedFeatures, maxDepth);
     return new Predictor([tree]);
 }
 
