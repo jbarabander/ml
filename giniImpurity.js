@@ -1,10 +1,10 @@
-function giniImpurity(data, classIndex) {
+function giniImpurity(data) {
     let classes = {};
     for (let i = 0; i < data.length; i++) {
-        if (classes[data[i][classIndex]] === undefined) {
-            classes[data[i][classIndex]] = 0;
+        if (classes[data[i]] === undefined) {
+            classes[data[i]] = 0;
         }
-        classes[data[i][classIndex]]++;
+        classes[data[i]]++;
     }
     return (
         Object

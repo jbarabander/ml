@@ -9,12 +9,12 @@ function modeFromValueCountHash (valuesHash) {
     }, {value: null, count: 0}).value;
 }
 
-function mode (data, classIndex) {
+function mode (data) {
     let valuesHash = data.reduce((prev, curr) => {
-        if (prev[curr[classIndex]] === undefined) {
-            prev[curr[classIndex]] = {value: curr[classIndex], count: 0};
+        if (prev[curr] === undefined) {
+            prev[curr] = {value: curr, count: 0};
         }
-        prev[curr[classIndex]].count++;
+        prev[curr].count++;
         return prev;
     }, {});
     return modeFromValueCountHash(valuesHash);

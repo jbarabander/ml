@@ -1,5 +1,5 @@
 const cart = require('./cart');
-const Predictor = require('./Predictor');
+const withPredictor = require('./Predictor').withPredictor;
 
 function randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures) {
     let numFeatures = typeof numOfFeatures === 'number' ? numOfFeatures : Math.sqrt(data[0].length);
@@ -27,9 +27,9 @@ function randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures)
     return trees;
 }
 
-function randomForestWithPredictor(data, classIndex, minSplitSize, numOfTrees, numOfFeatures) {
-    let trees = randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures);
-    return new Predictor(trees);
+function randomForestWithPredictor(data, classIndex, minSplitSize, numOfTrees, numOfFeatures, formatter = (entry => entry)) {
+    let treeCreator = (data) => randomForest(data, classIndex, minSplitSize, numOfTrees, numOfFeatures);
+    return withPredictor(treeCreator, formatter, data);
 }
 
 module.exports = randomForest;

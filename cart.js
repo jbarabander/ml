@@ -1,6 +1,6 @@
 const giniImpurity = require('./giniImpurity');
 const { mode, fillArr } = require('./utils');
-const Predictor = require('./Predictor');
+const withPredictor = require('./Predictor').withPredictor;
 
 function getOptions(data, index) {
     let hash = {};
@@ -25,8 +25,11 @@ function findSplit(choices, data, index, classIndex, isNumeric) {
             }
             return prev;
         }, [[], []]);
-        let firstSplitImpurity = (splits[0].length / data.length) * giniImpurity(splits[0], classIndex);
-        let secondSplitImpurity = (splits[1].length / data.length) * giniImpurity(splits[1], classIndex);
+        let firstClassifiersOnly = splits[0].map(entry => entry[classIndex]);
+        let secondClassifiersOnly = splits[1].map(entry => entry[classIndex]);
+
+        let firstSplitImpurity = (splits[0].length / data.length) * giniImpurity(firstClassifiersOnly);
+        let secondSplitImpurity = (splits[1].length / data.length) * giniImpurity(secondClassifiersOnly);
         let currGini = firstSplitImpurity + secondSplitImpurity;
         if (optimizedSplitPoint === undefined || currGini < minGiniImpurity) {
             minGiniImpurity = currGini;
@@ -67,15 +70,17 @@ function split(data, index, classIndex) {
 }
 
 function createPredictionNode(data, classIndex) {
-    return { prediction: mode(data, classIndex) };
+    let classifications = data.map((entry) => entry[classIndex]);
+    return { prediction: mode(classifications) };
 }
 
+// data looks like: {features: [string], classifier: something else}
 function cart(data, classIndex, minSplitSize, includedFeaturesFunc, maxDepth = Infinity, currentDepth = 0) {
     let featuresIncluded = includedFeaturesFunc ? includedFeaturesFunc() : fillArr(data[0].length);
     
     if (data.length === 0) return null;
-
-    if (data.length < minSplitSize || giniImpurity(data, classIndex) === 0 || currentDepth >= maxDepth) {
+    let classificationsOnly = data.map((entry) => entry[classIndex]);
+    if (data.length < minSplitSize || giniImpurity(classificationsOnly) === 0 || currentDepth >= maxDepth) {
         return createPredictionNode(data, classIndex);
     }
 
@@ -104,9 +109,9 @@ function cart(data, classIndex, minSplitSize, includedFeaturesFunc, maxDepth = I
     }
 }
 
-function cartWithPredictor (data, classIndex, minSplitSize, includedFeatures, maxDepth) {
-    let tree = cart(data, classIndex, minSplitSize, includedFeatures, maxDepth);
-    return new Predictor([tree]);
+function cartWithPredictor (data, classIndex, minSplitSize, includedFeatures, maxDepth, formatter = (entry => entry)) {
+    let treeCreator = (data) => [cart(data, classIndex, minSplitSize, includedFeatures, maxDepth)];
+    return withPredictor(treeCreator, formatter, data);
 }
 
 module.exports = cart;

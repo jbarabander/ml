@@ -1,8 +1,9 @@
 const { modeFromValueCountHash } = require('./utils');
 
 class Predictor {
-    constructor(trees) {
+    constructor(trees, transformer) {
         this.trees = trees;
+        this.transformer = transformer; // TODO: add transformation
     }
     classify(entry) {
         let votes = {};
@@ -24,4 +25,11 @@ class Predictor {
     }
 }
 
+function withPredictor (cb, transformer, data) {
+    let transformedData = data.map((entry) => transformer(entry));
+    let trees = cb(transformedData);
+    return new Predictor(trees, transformer);
+}
+
 module.exports = Predictor;
+module.exports.withPredictor = withPredictor;
