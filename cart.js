@@ -70,12 +70,12 @@ function createPredictionNode(data, classIndex) {
     return { prediction: mode(data, classIndex) };
 }
 
-function cart(data, classIndex, minSplitSize, includedFeaturesFunc) {
+function cart(data, classIndex, minSplitSize, includedFeaturesFunc, maxDepth = Infinity,  currentDepth = 0) {
     let featuresIncluded = includedFeaturesFunc ? includedFeaturesFunc() : fillArr(data[0].length);
     
     if (data.length === 0) return null;
 
-    if (data.length < minSplitSize || giniImpurity(data, classIndex) === 0) {
+    if (data.length < minSplitSize || giniImpurity(data, classIndex) === 0 || currentDepth >= maxDepth) {
         return createPredictionNode(data, classIndex);
     }
 
@@ -89,10 +89,6 @@ function cart(data, classIndex, minSplitSize, includedFeaturesFunc) {
             minResults = results;
         }
     }
-    if (minResults === undefined) {
-        console.log(data[0].length);
-        console.log(featuresIncluded);
-    }
 
     if (minResults.choicesLen === 1) {
         return createPredictionNode(data, classIndex);
@@ -103,8 +99,8 @@ function cart(data, classIndex, minSplitSize, includedFeaturesFunc) {
         index: minIndex,
         numeric: minResults.numeric,
         split: minResults.split,
-        left: cart(minResults.data[0], classIndex, minSplitSize, includedFeaturesFunc),
-        right: cart(minResults.data[1], classIndex, minSplitSize, includedFeaturesFunc),
+        left: cart(minResults.data[0], classIndex, minSplitSize, includedFeaturesFunc, maxDepth, currentDepth++),
+        right: cart(minResults.data[1], classIndex, minSplitSize, includedFeaturesFunc, maxDepth, currentDepth++),
     }
 }
 
