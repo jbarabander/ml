@@ -15,7 +15,7 @@ function findSplits(choices, data, index, isNumeric) {
     let splitter = isNumeric ? ((test, upper) => test < upper) : ((test, upper) => test === upper);
     return choices.map(choice => {
         let splits = data.reduce((prev, curr) => {
-            if (splitter(curr.features[index], choices[i])) {
+            if (splitter(curr.features[index], choice)) {
                 prev[0].push(curr);
             } else {
                 prev[1].push(curr);
@@ -32,7 +32,7 @@ function findSplits(choices, data, index, isNumeric) {
     });
 }
 
-let getNumericOptions(data, index) {
+function getNumericOptions(data, index) {
     let keys = getOptions(data, index);
     keys.sort();
     let midpoints = [];
@@ -98,13 +98,15 @@ function decisionTree(data, minSplitSize, includedFeaturesFunc, errorFunc, shoul
         return createPredictionNode(classificationsOnly);
     }
     
+    currentDepth++;
+
     return {
         error: minError,
         index: minSplit.index,
         numeric: minSplit.numeric,
         split: minSplit.split,
-        left: decisionTree(minSplit.data[0], minSplitSize, includedFeaturesFunc, errorFunc, shouldStop, maxDepth, currentDepth++),
-        right: cart(minSplit.data[1], minSplitSize, includedFeaturesFunc, errorFunc, shouldStop, maxDepth, currentDepth++),
+        left: decisionTree(minSplit.data[0], minSplitSize, includedFeaturesFunc, errorFunc, shouldStop, maxDepth, currentDepth),
+        right: decisionTree(minSplit.data[1], minSplitSize, includedFeaturesFunc, errorFunc, shouldStop, maxDepth, currentDepth),
     }
 }
 

@@ -37,9 +37,15 @@ function defaultFormatter (data) {
     return { features, classification };
 }
 
+function sign (num) {
+    if (num < 0) return -1;
+    return 1;
+}
+
 module.exports = {
     mode,
     modeFromValueCountHash,
     fillArr,
-    defaultFormatter
+    defaultFormatter,
+    sign
 };

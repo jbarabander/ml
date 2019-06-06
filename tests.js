@@ -6,7 +6,7 @@ const defaultFormatter = require('./utils').defaultFormatter;
 const SPLIT_FACTOR = 300;
 const CLASS_INDEX = 6;
 const NUM_TREES = 200;
-const NUM_OF_STUMPS = 20;
+const NUM_OF_STUMPS = 100;
 
 const {training, test} = loader('car.data', 2/3);
 
@@ -29,6 +29,7 @@ function calculateAdaBoostResults(predictor, formatter) {
         prev.total++;
         let formatted = formatter(curr);
         let prediction = predictor(formatted);
+
         if (prediction === formatted.classification) {
             prev.correct++;
         }
