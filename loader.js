@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 function loader(fileName, trainingRatio) {
-    if (trainingRatio >= 1) throw new Error('training ratio is greater than or equal to 1');
+    if (trainingRatio > 1) throw new Error('training ratio is greater than 1');
     let dataPath = path.join(__dirname, './data', fileName);
     let data = fs.readFileSync(dataPath, {encoding: 'utf8'});
     let rows = data.split('\n').filter(row => !!row).map(row => row.split(','));
