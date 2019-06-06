@@ -41,7 +41,6 @@ function adaBoost(data, count) {
     for (let i = 0; i < count; i++) {
         let stump = decisionTree(data, 1, null, errorRate, shouldStop, 1);
         let predictor = new Predictor([stump], entry => entry);
-        console.log(stump);
         let chosenPredictor = predictor.classify.bind(predictor);
         let minError = stump.error;
         let weight = (1 / 2) * Math.log((1 - minError) / minError);
